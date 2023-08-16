@@ -15,14 +15,13 @@ def getUserID():
 
 def getUserHomeDir():
     return os.path.expanduser('~')    
-    
+
 def getsimgLoc(simg_name):
-    if simg_name == os.path.basename(simg_name): # the case 1) image name only : convert relative path(file) to absolute path automatically
-        #res = os.path.join(getUserHomeDir(),simg_name+("" if ".sif" in simg_name else ".sif"))
-        res = os.path.join(os.getcwd(),simg_name)#+("" if ".sif" in simg_name else ".sif"))
-    elif "docker" in simg_name.lower(): # the case 2) if U do not have sif container image yet, just docker address -> build for your own singularity container in your home directory automatically    
+    if "docker://" in simg_name.lower():
         res = autoBuildSingularityImagefromDockerRepository(simg_name) # sandbox will be supported 20230816
-    return res
+    else:
+        res = os.path.join(os.getcwd(),simg_name)
+    return os.path.abspath(res)
 
 def autoBuildSingularityImagefromDockerRepository(simg_name):
     import subprocess
