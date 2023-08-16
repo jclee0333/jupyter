@@ -147,7 +147,7 @@ def removeAllCustomKernels():
     
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--img', help="filepath of the singularity container, e.g., /home/kisti/qm.sif or docker://python3 (docker image will be build into /home/{user}/singularity-images/python3.sif)")
+    parser.add_argument('--img', help="filepath of the singularity container, e.g., /home/kisti/qm.sif or docker://python3 (docker image will be build into /{pwd}/{docker_name}.sif)")
     parser.add_argument('--kpath', help="specific python kernel path in the container, default is 'auto'", default='auto')#, e.g., "/usr/bin/python"
     parser.add_argument('--dname', help="specific python kernel display name in jupyter, default is 'auto'", default='auto')#, e.g., "Python3 (qe-singularity)"
     parser.add_argument('--rmall', help="remove all custom kernels (yes/no), default is 'no'", default="no")
