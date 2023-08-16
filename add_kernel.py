@@ -151,10 +151,11 @@ if __name__ == "__main__":
     parser.add_argument('--dname', help="specific python kernel display name in jupyter, default is 'auto'", default='auto')#, e.g., "Python3 (qe-singularity)"
     parser.add_argument('--rmall', help="remove all custom kernels (yes/no), default is 'no'", default="no")
     args=parser.parse_args()
-    if (args.img is None) or (args.img==""):
-        print("error: please input singularity container image path or docker address by using --img option.")
-        exit(-1)
-    if args.rmall=='no':
-        autogetkernelDicts(args)        
-    elif args.rmall=='yes':
-        removeAllCustomKernels()    
+    if args.rmall=='yes':
+        removeAllCustomKernels()
+    else:
+        if (args.img is None) or (args.img==""):
+            print("error: please input singularity container image path or docker address by using --img option.")
+            exit(-1)
+        else:
+            autogetkernelDicts(args)
