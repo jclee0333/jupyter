@@ -3,8 +3,12 @@ import argparse
 import json
 
 ##########################
-### test code:
-### python add_kernel.py --user "kisti" --img "quantum_mobile_20_11_2a" --loc_in_con "/usr/bin/python3" --dname "py3 (qe-singularity)"
+### test codes (examples)
+### python add_kernel.py --img quantum-mobile_20_11_2a.sif
+### python add_kernel.py --img docker://python
+### python add_kernel.py --img "quantum-mobile_20_11_2a.sif" --kpath "/usr/bin/python3" --dname "py3 (qe-singularity)"
+### python add_kernel.py --img "quantum-mobile_20_11_2a.sif" --scanonly yes
+### python add_kernel.py --rmall yes
 ##########################
 
 def getUserID():
@@ -15,7 +19,7 @@ def getUserID():
 
 def getUserHomeDir():
     return os.path.expanduser('~')    
-
+    
 def getsimgLoc(simg_name):
     if "docker://" in simg_name.lower():
         res = autoBuildSingularityImagefromDockerRepository(simg_name) # sandbox will be supported 20230816
@@ -48,7 +52,7 @@ def getkernelDictandgenJSON(args, simgLocAbsolutePath, kpath):
     res.update({"env":env_dict})
     kernelJsonGen(args, res, kpath)
 
-def autogetkernelDicts(args):
+def autogetkernelDicts(args, scanonly):
     simgLocAbsolutePath = getsimgLoc(args.img) #including instant building
     if os.path.exists(simgLocAbsolutePath):
         if args.kpath == 'auto':
@@ -56,13 +60,16 @@ def autogetkernelDicts(args):
             if len(kpath_list)==0:
                 print("error: there is no python kernel in this image. Try another image.")
                 exit(-1)
+            if scanonly=="yes":
+                print(kpath_list)
+                exit(-1)
             for each in kpath_list:
                 getkernelDictandgenJSON(args, simgLocAbsolutePath, each)
         else:
             getkernelDictandgenJSON(args, simgLocAbsolutePath, args.kpath)
     else:
         print("error: singularity image ("+simgLocAbsolutePath+") not founded.")
-        exit(-1)            
+        exit(-1)          
         
 def kernelJsonGen(args, res_dict, kpath):
     user = getUserID() # kisti
@@ -149,6 +156,7 @@ if __name__ == "__main__":
     parser.add_argument('--img', help="filepath of the singularity container, e.g., /home/kisti/qm.sif or docker://python3 (docker image will be build into /{pwd}/{docker_name}.sif)")
     parser.add_argument('--kpath', help="specific python kernel path in the container, default is 'auto'", default='auto')#, e.g., "/usr/bin/python"
     parser.add_argument('--dname', help="specific python kernel display name in jupyter, default is 'auto'", default='auto')#, e.g., "Python3 (qe-singularity)"
+    parser.add_argument('--scanonly', help="scan python kernel path only in a specific container (yes/no), default is 'no'", default="no")
     parser.add_argument('--rmall', help="remove all custom kernels (yes/no), default is 'no'", default="no")
     args=parser.parse_args()
     if args.rmall=='yes':
@@ -158,4 +166,4 @@ if __name__ == "__main__":
             print("error: please input singularity container image path or docker address by using --img option.")
             exit(-1)
         else:
-            autogetkernelDicts(args)
+            autogetkernelDicts(args, args.scanonly)
